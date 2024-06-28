@@ -1,6 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const Book = require('./models/book'); 
+
+const auth = require('../middleware/auth');
+
+// Routes
+const bookRoutes = require('./routes/books');
+const userRoutes = require('./routes/user');
 
 const app = express();
 
@@ -10,7 +15,6 @@ mongoose.connect('mongodb+srv://manuelzuanon:ZmTWZ0Lo8irq32jo@cluster0.kn9njmi.m
     console.error('Connexion à MongoDB échouée !', err);
   });
 
-app.use(express.json());
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -19,14 +23,11 @@ app.use((req, res, next) => {
     next();
 });
 
-// Route pour récupérer tous les livres
-app.get('/api/books', (req, res, next) => {
-    Book.find()
-      .then(books => {
-        console.log(books); // Logue tous les livres dans la console
-        res.status(200).json(books); // Retourne les livres en réponse JSON
-      })
-      .catch(error => res.status(400).json({ error }));
-});    
+app.use(express.json());
+
+app.use('/api/book', bookRoutes);
+app.use('/api/auth', userRoutes);
+
+
 
 module.exports = app;
