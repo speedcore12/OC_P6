@@ -17,7 +17,6 @@ exports.getBestRating = (req, res) => {
     Book.find().sort({ averageRating: -1 }).limit(3)
         .then(books => {
             res.status(200).json(books);
-            console.log(books);
         })
         .catch(error => {
             res.status(400).json({ error });
@@ -103,6 +102,11 @@ exports.rateBook = (req, res, next) => {
     console.log('Données reçues:', req.body);
     console.log('ID du livre:', req.params.id);
 
+    // Vérifie que la note est un nombre valide entre 0 et 5
+    if (typeof req.body.rating !== 'number' || req.body.rating < 0 || req.body.rating > 5) {
+        return res.status(400).json({ message: 'La note doit être un nombre entre 0 et 5' });
+    }
+
     // Recherche du livre par _id
     Book.findOne({ _id: req.params.id })
         .then(book => {
@@ -123,7 +127,12 @@ exports.rateBook = (req, res, next) => {
             for (let i = 0; i < book.ratings.length; i++) {
                 sumGrades += book.ratings[i].grade;
             }
-            book.averageRating = sumGrades / book.ratings.length;
+            const newAverage = sumGrades / book.ratings.length;
+            console.log('Somme des notes:', sumGrades);
+            console.log('Nombre de notes:', book.ratings.length);
+            console.log('Nouvelle moyenne:', newAverage);
+
+            book.averageRating = newAverage;
 
             // Sauvegarde le livre mis à jour
             book.save()
