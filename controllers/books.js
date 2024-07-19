@@ -96,12 +96,8 @@ exports.deleteBook = (req, res, next) => {
         });
 };
 
-
-
+// Ajoute une note à un livre
 exports.rateBook = (req, res, next) => {
-    console.log('Données reçues:', req.body);
-    console.log('ID du livre:', req.params.id);
-
     // Vérifie que la note est un nombre valide entre 0 et 5
     if (typeof req.body.rating !== 'number' || req.body.rating < 0 || req.body.rating > 5) {
         return res.status(400).json({ message: 'La note doit être un nombre entre 0 et 5' });
@@ -127,11 +123,7 @@ exports.rateBook = (req, res, next) => {
             for (let i = 0; i < book.ratings.length; i++) {
                 sumGrades += book.ratings[i].grade;
             }
-            const newAverage = sumGrades / book.ratings.length;
-            console.log('Somme des notes:', sumGrades);
-            console.log('Nombre de notes:', book.ratings.length);
-            console.log('Nouvelle moyenne:', newAverage);
-
+            const newAverage = (sumGrades / book.ratings.length).toFixed(1);
             book.averageRating = newAverage;
 
             // Sauvegarde le livre mis à jour
