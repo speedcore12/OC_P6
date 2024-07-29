@@ -4,6 +4,13 @@ const User = require('../models/user');
 
 // Inscription d'un nouvel utilisateur
 exports.signup = (req, res) => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+    // Vérification de la validité de l'email
+    if (!emailRegex.test(req.body.email)) {
+        return res.status(400).json({ message: 'Email invalide' });
+    }
+
     // Hachage du mot de passe avec un coût de 10
     bcrypt.hash(req.body.password, 10)
         .then(hash => {
@@ -19,6 +26,7 @@ exports.signup = (req, res) => {
         })
         .catch(error => res.status(500).json({ error }));
 };
+
 
 // Connexion d'un utilisateur existant
 exports.login = (req, res) => {

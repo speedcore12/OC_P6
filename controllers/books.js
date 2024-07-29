@@ -58,11 +58,23 @@ exports.updateBook = (req, res, next) => {
 
     // Supprime l'ID utilisateur du corps de la requête
     delete bookObject._userId;
+
     Book.findOne({ _id: req.params.id })
         .then((book) => {
+            if (!book) {
+                return res.status(404).json({ message: 'Livre non trouvé' });
+            }
             if (book.userId != req.auth.userId) {
-                res.status(401).json({ message: 'Non autorisé' });
+                return res.status(401).json({ message: 'Non autorisé' });
             } else {
+                if (req.file) {
+                    const filename = book.imageUrl.split('/images/')[1];
+                    fs.unlink(`images/${filename}`, (err) => {
+                        if (err) {
+                            console.error('Erreur lors de la suppression de l\'image précédente:', err);
+                        }
+                    });
+                }
                 // Met à jour le livre avec les nouvelles informations
                 Book.updateOne({ _id: req.params.id }, { ...bookObject, _id: req.params.id })
                     .then(() => res.status(200).json({ message: 'Livre mis à jour !' }))
@@ -73,6 +85,7 @@ exports.updateBook = (req, res, next) => {
             res.status(400).json({ error });
         });
 };
+
 
 // Supprime un livre existant
 exports.deleteBook = (req, res, next) => {
